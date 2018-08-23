@@ -8,7 +8,9 @@ class MainContainer extends Component {
 
     this.state={
       searchTerm: '',
-      results: []
+      results: [],
+      pageNumber: 1,
+      loading: false
     }
   }
 
@@ -18,14 +20,35 @@ class MainContainer extends Component {
     })
   }
 
+  changePage = (e) => {
+    this.setState({
+      pageNumber: e.target.value
+    })
+  }
+
   performSearch = (e) => {
     e.preventDefault()
     console.log('inside performSearch')
-    fetch(`https://cors-anywhere.herokuapp.com/https://untitled-dy2nd6y6z06x.runkit.sh/search/${this.state.searchTerm}`)
+    this.setState({
+      loading: true
+    })
+    fetch(`https://cors-anywhere.herokuapp.com/https://untitled-dy2nd6y6z06x.runkit.sh/search/${this.state.searchTerm}/${this.state.pageNumber}`)
     .then(resp => resp.json())
-    .then(data => this.setState({
-      results: data.GoodreadsResponse.search.results.work
-    }, () => console.log(this.state.results)))
+    .then(data => {
+      if (data.work) {
+      this.setState({
+        results: data.work
+      }, () => this.setState({
+        loading: false
+      }))
+      } else {
+        this.setState({
+          results: "Your search returned no results."
+        }, () => this.setState({
+          loading: false
+        }))
+      }
+    })
   }
 
   render() {
@@ -35,8 +58,8 @@ class MainContainer extends Component {
           <h1>The Catalog</h1>
           <h5>Powered by Goodreads</h5>
         </div>
-        <SearchBar searchTerm={this.state.searchTerm} changeTerm={this.changeTerm} performSearch={this.performSearch} />
-        <ResultsList results={this.state.results} />
+        <SearchBar searchTerm={this.state.searchTerm} changeTerm={this.changeTerm} performSearch={this.performSearch} changePage={this.changePage} />
+        <ResultsList loadingStatus={this.state.loading} results={this.state.results} />
       </Fragment>
     )
   }

@@ -4,7 +4,7 @@ import Book from './Book'
 class ResultsList extends Component {
   render() {
     let books;
-    if (this.props.results.length !== 0 && !Array.isArray(this.props.results)) {
+    if (this.props.results.length !== 0 && !Array.isArray(this.props.results) && this.props.results !== "Your search returned no results.") {
       books = <Book title={this.props.results.best_book.title} author={this.props.results.best_book.author.name} image={this.props.results.best_book.image_url} rating={this.props.results.average_rating} />
     } else if (this.props.results.length !==0 && Array.isArray(this.props.results)) {
       books = this.props.results.map(book => {
@@ -14,7 +14,14 @@ class ResultsList extends Component {
     return (
       <Fragment>
         <div className="centered">
-          {this.props.results.length !==0 ? <Fragment><h4 className="centered-text">Results:</h4><div className="cards">{books}</div></Fragment> : <h4 className="centered-text">There are no results yet.</h4>}
+          {this.props.loadingStatus === true ? <h4 className="centered-text">Loading...</h4> : null }
+          {this.props.results.length !== 0 && this.props.loadingStatus === false ?
+            <div>
+              <h4 className="centered-text">Results:</h4>
+              <div className="cards">{books}</div>
+            </div> : null}
+          {this.props.results === "Your search returned no results." ? <h4 className="centered-text">Your search returned no results.</h4> : null}
+          {this.props.results.length === 0 && this.props.loadingStatus === false ? <h4 className="centered-text">There are no results yet.</h4> : null}
         </div>
       </Fragment>
     )
